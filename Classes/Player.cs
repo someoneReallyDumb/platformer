@@ -20,9 +20,9 @@ namespace platformer.Classes
         private Texture2D defaultTextureRight;
         private Texture2D defaultTextureLeft;
         private float speed = 5;
-        private float fallSpeed = 5;
+        private float fallSpeed = 7;
         private float jumpSpeed = 10;
-        private float jumpHeight = 200;
+        private float jumpHeight = 100;
         private float startHeight = 0;
         //private double time = 0.0d;
         //private double duration = 400.0d;
@@ -40,6 +40,29 @@ namespace platformer.Classes
         private Rectangle leftCollision;
         private Rectangle rightCollision;
 
+        public int Height
+        {
+            get { return texture.Height; }
+        }
+        public int Width
+        {
+            get { return texture.Width; }
+        }
+        public float JumpSpeed
+        {
+            get { return jumpSpeed; }
+        }
+        public bool IsJumping
+        {
+            get;
+            set;
+        }
+        public bool IsFalling
+        {
+            get;
+            set;
+        }
+        #region collisions
         public Rectangle UpCollision
         {
             get { return upCollision; }
@@ -56,11 +79,13 @@ namespace platformer.Classes
         {
             get { return rightCollision; }
         }
+        #endregion
         //public Vector2 Position { get; set; }
         public Player()
         {
             position = new Vector2(0,0);
             texture = defaultTextureRight;
+            IsFalling = true;
             upCollision = new Rectangle((int)position.X, (int)position.Y, 0, 0);
             downCollision = new Rectangle((int)position.X, (int)position.Y, 0, 0);
             rightCollision = new Rectangle((int)position.X, (int)position.Y, 0, 0);
@@ -69,67 +94,62 @@ namespace platformer.Classes
         public void Update(int widthScreen, int heightScreen, ContentManager content,
             GameTime gameTime)
         {
+            if (IsFalling)
+            {
+                position.Y += fallSpeed;
+            }
             KeyboardState keyboard = Keyboard.GetState();
             if (isLeft)
             { texture = defaultTextureLeft; }
             else { texture = defaultTextureRight; }
             #region Movement
-            if (keyboard.IsKeyDown(Keys.S))
+            //if (keyboard.IsKeyDown(Keys.S))
+            //{
+                //if (isLeft)
+                //{ texture = texturesJumpLeft[0]; }
+                //else { texture = texturesJumpRight[0]; }
+            //}
+            if (keyboard.IsKeyDown(Keys.Space) || keyboard.IsKeyDown(Keys.W))
             {
-                if (isLeft)
-                { texture = texturesJumpLeft[0]; }
-                else { texture = texturesJumpRight[0]; }
+                if (!IsFalling)
+                {
+                    Jump(heightScreen);
+                }
             }
-            if (keyboard.IsKeyDown(Keys.Space))
+            else
             {
-                //time += gameTime.ElapsedGameTime.TotalMilliseconds
-                    //- duration * jumpCount;  //надо с этим что-то сделать
-                //if (time <= duration)
-                //{
-                    //texture = texturesJumpRight[1];
-                //}
-                //if (time > duration)
-                //{
-                Jump(heightScreen);
-                //}
+                IsJumping = false;
+                IsFalling = true;
+                startHeight = heightScreen;
             }
             if (textureRunNum > animSpeed * 3)
             {
                 textureRunNum = 0;
             }
-            if (keyboard.IsKeyDown(Keys.A) && !keyboard.IsKeyDown(Keys.D) &&
-                !keyboard.IsKeyDown(Keys.S))
+            if (keyboard.IsKeyDown(Keys.A) && !keyboard.IsKeyDown(Keys.D))
             {
                 position.X -= speed;
                 isLeft = true;
-                if (texture != null)
+                if (texture != null && !IsJumping)
                 {
-                    if (position.Y == heightScreen - texture.Height)   //поменять
-                    {
-                        texture = texturesRunLeft[textureRunNum / animSpeed];
-                        textureRunNum++;
-                    }
+                    texture = texturesRunLeft[textureRunNum / animSpeed];
+                    textureRunNum++;
                 }    
             }
             if (textureRunNum > animSpeed*3)
             {
                 textureRunNum = 0;
             }
-            if (keyboard.IsKeyDown(Keys.D) && !keyboard.IsKeyDown(Keys.A) &&
-                !keyboard.IsKeyDown(Keys.S))
+            if (keyboard.IsKeyDown(Keys.D) && !keyboard.IsKeyDown(Keys.A))
             {
                 position.X += speed;
                 isLeft = false;
-                if (texture != null)
+                if (texture != null && !IsJumping)
                 {
-                    if (position.Y == heightScreen - texture.Height)   //поменять
-                    {
-                        texture = texturesRunRight[textureRunNum / animSpeed];
-                        textureRunNum++;
-                    }
+                    texture = texturesRunRight[textureRunNum / animSpeed];
+                    textureRunNum++;
                 }       
             }
-            position.Y += fallSpeed;
             #endregion
             #region Bounds
             if (position.X < 0)
@@ -140,44 +160,57 @@ namespace platformer.Classes
             {
                 position.Y = 0;
             }
-            if (position.X > widthScreen - texture.Width)
+            if (position.X >= widthScreen - texture.Width)
             {
                 position.X = widthScreen - texture.Width;
             }
-            if (position.Y > heightScreen - texture.Height)
+            if (position.Y >= heightScreen - texture.Height)
             {
                 position.Y = heightScreen - texture.Height;
+                IsFalling = false;
             }
             #endregion
-            upCollision = new Rectangle((int)position.X, (int)position.Y,
-                                       texture.Width, 20);
-            downCollision = new Rectangle((int)position.X, (int)position.Y,
-                                       texture.Width, 20);
+            upCollision = new Rectangle((int)position.X, 
+                (int)position.Y - 5, texture.Width, 10);
+            downCollision = new Rectangle((int)position.X,
+                (int)position.Y + texture.Height + 5, texture.Width, 10);
+            leftCollision = new Rectangle((int)position.X,
+                (int)position.Y + 10, 10, texture.Height);
+            rightCollision = new Rectangle((int)position.X + texture.Width,
+                (int)position.Y + 10, 10, texture.Height);
         }
         private void Jump(float heightScreen)
         {
-           
+
             if (startHeight <= jumpHeight)
             {
                 if (isLeft)
                 { texture = texturesJumpLeft[2]; }
                 else
                 { texture = texturesJumpRight[2]; }
-                    position.Y -= jumpSpeed;
+                position.Y -= jumpSpeed;
                 startHeight += jumpSpeed;
+                IsJumping = true;
             }
             else
             {
+                IsJumping = false;
                 if (isLeft)
                 { texture = texturesJumpLeft[3]; }
                 else
                 { texture = texturesJumpRight[3]; }
-                if (position.Y == heightScreen - texture.Height)  //!!!
+                if (position.Y >= heightScreen - texture.Height)  //!!!
                 {
                     startHeight = 0;
                     //jumpCount++;
-                }  
+                }
+                IsFalling = true;
             }
+        }
+        public void ClearJump()
+        {
+            startHeight = 0;
+            IsJumping = false;
         }
         public void LoadContent(ContentManager content)
         {

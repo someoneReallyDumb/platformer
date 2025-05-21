@@ -26,7 +26,7 @@ namespace platformer
         {
             // TODO: Add your initialization logic here
             player = new Player();
-            platform = new Platform(390, 440);
+            platform = new Platform(390, 400);
             base.Initialize();
         }
 
@@ -69,11 +69,25 @@ namespace platformer
         {
             if (player.UpCollision.Intersects(platform.Location))
             {
-                player.position.Y = platform.Location.Y - platform.Width;
+                player.position.Y = platform.Location.Y + platform.Height;
             }
+
             if (player.DownCollision.Intersects(platform.Location))
             {
-                player.position.Y = platform.Location.Y;
+                player.position.Y -= player.JumpSpeed * 2;
+                player.IsJumping = false;
+                player.IsFalling = true;
+                player.ClearJump();
+            }
+
+            if (player.LeftCollision.Intersects(platform.Location))
+            {
+                player.position.X = platform.Location.X + platform.Location.Width;
+            }
+
+            if (player.RightCollision.Intersects(platform.Location))
+            {
+                player.position.X = platform.Location.X - player.Width;
             }
         }
     }
