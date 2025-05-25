@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using platformer.Classes;
+//using SharpDX.Direct2D1;
 using System;
 using System.Collections.Generic;
 
@@ -9,15 +11,21 @@ namespace platformer
 {
     public class Game1 : Game
     {
-        private GraphicsDeviceManager _graphics;
+        private GraphicsDeviceManager graphics;
         private SpriteBatch _spriteBatch;
 
         private Player player;
         private Platform platform;
+        public Background background;
+        private HUD hud;
+        private MainMenu mainMenu;
+        private PauseMenu pauseMenu;
+        public static GameMode gameMode = GameMode.Menu;
+
 
         public Game1()
         {
-            _graphics = new GraphicsDeviceManager(this);
+            graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
@@ -27,6 +35,15 @@ namespace platformer
             // TODO: Add your initialization logic here
             player = new Player();
             platform = new Platform(390, 400);
+            background = new Background();
+            mainMenu = new MainMenu(graphics.PreferredBackBufferWidth,
+                graphics.PreferredBackBufferHeight);
+            pauseMenu = new PauseMenu(graphics.PreferredBackBufferWidth,
+                graphics.PreferredBackBufferHeight);
+            hud = new HUD();
+
+            mainMenu.OnPlayingStarted += OnPlayingStarted;
+            pauseMenu.OnPlayingResumed += OnPlayingResumed;
             base.Initialize();
         }
 
@@ -35,18 +52,43 @@ namespace platformer
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             player.LoadContent(Content);
             platform.LoadContent(Content);
+            background.LoadContent(Content);
+            mainMenu.LoadContent(Content);
+            pauseMenu.LoadContent(Content);
             // TODO: use this.Content to load your game content here
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-            CheckCollision();
-            player.Update(
-                    _graphics.PreferredBackBufferWidth,
-                    _graphics.PreferredBackBufferHeight,
-                    Content, gameTime);
+            switch (gameMode)
+            {
+                case GameMode.Menu:
+                    mainMenu.Update();
+                    break;
+                case GameMode.Pause:
+                    pauseMenu.Update();
+                    break;
+                case GameMode.Playing:
+                    if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+                        Exit();
+                    CheckCollision();
+                    player.Update(
+                            graphics.PreferredBackBufferWidth,
+                            graphics.PreferredBackBufferHeight,
+                            Content, gameTime);
+                    if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+                    {
+                        gameMode = GameMode.Pause;
+                        //MediaPlayer.Play(_menuSong);
+                    }
+                    break;
+                case GameMode.GameOver:
+                    break;
+                case GameMode.Exit:
+                    Exit();
+                    break;
+            }
+            
             // TODO: Add your update logic here
 
             base.Update(gameTime);
@@ -58,10 +100,37 @@ namespace platformer
 
             // TODO: Add your drawing code here
             _spriteBatch.Begin();
+            switch (gameMode)
+            {
+                case GameMode.Menu:
+                    background.Draw(_spriteBatch);
+                    mainMenu.Draw(_spriteBatch);
+                    break;
+                case GameMode.Pause:
+                    background.Draw(_spriteBatch);
+                    pauseMenu.Draw(_spriteBatch);
+                    break;
+                case GameMode.Playing:
+                    background.Draw(_spriteBatch);
+                    player.Draw(_spriteBatch);
+                    platform.Draw(_spriteBatch);
+                    
+                    //hud.Draw(_spriteBatch);
+                    break;
+                case GameMode.GameOver:
+                    background.Draw(_spriteBatch);
+                    //gameOver.Draw(_spriteBatch);
+                    break;
+                case GameMode.Exit:
+                    break;
+                default:
+                    break;
+            }
 
-            player.Draw(_spriteBatch);
-            platform.Draw(_spriteBatch);
-
+            //background.Draw(_spriteBatch);
+            //player.Draw(_spriteBatch);
+            //platform.Draw(_spriteBatch);
+            
             _spriteBatch.End();
             base.Draw(gameTime);
         }
@@ -74,9 +143,9 @@ namespace platformer
 
             if (player.DownCollision.Intersects(platform.Location))
             {
-                player.position.Y -= player.JumpSpeed * 2;
+                //player.position.Y -= player.JumpSpeed;
                 player.IsJumping = false;
-                player.IsFalling = true;
+                player.IsFalling = false;
                 player.ClearJump();
             }
 
@@ -89,6 +158,17 @@ namespace platformer
             {
                 player.position.X = platform.Location.X - player.Width;
             }
+        }
+        private void OnPlayingStarted()
+        {
+            gameMode = GameMode.Playing;
+            //MediaPlayer.Play(_gameSong);
+            //Reset();
+        }
+        private void OnPlayingResumed()
+        {
+            gameMode = GameMode.Playing;
+            //MediaPlayer.Play(_gameSong);
         }
     }
 }

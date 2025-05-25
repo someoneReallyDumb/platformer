@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SharpDX.Direct3D9;
 namespace platformer.Classes
 {
     public class Player
@@ -173,11 +171,11 @@ namespace platformer.Classes
             upCollision = new Rectangle((int)position.X, 
                 (int)position.Y - 5, texture.Width, 10);
             downCollision = new Rectangle((int)position.X,
-                (int)position.Y + texture.Height + 5, texture.Width, 10);
+                (int)position.Y + texture.Height - 5, texture.Width, 10);
             leftCollision = new Rectangle((int)position.X,
-                (int)position.Y + 10, 10, texture.Height);
+                (int)position.Y + 10, 10, texture.Height - 20);
             rightCollision = new Rectangle((int)position.X + texture.Width,
-                (int)position.Y + 10, 10, texture.Height);
+                (int)position.Y + 10, 10, texture.Height - 20);
         }
         private void Jump(float heightScreen)
         {
@@ -215,6 +213,7 @@ namespace platformer.Classes
         public void LoadContent(ContentManager content)
         {
             defaultTextureRight = content.Load<Texture2D>("default");
+            texture = content.Load<Texture2D>("default");
             defaultTextureLeft = content.Load<Texture2D>("default_left");
             LoadRunTextures(content);
         }
