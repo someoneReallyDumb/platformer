@@ -16,10 +16,12 @@ namespace platformer
 
         private Player player;
         private Platform platform;
-        public Background background;
+        private Background background;
         private HUD hud;
         private MainMenu mainMenu;
         private PauseMenu pauseMenu;
+        private List<PlayerBullet> playerBullets;
+        //private Face face;
         public static GameMode gameMode = GameMode.Menu;
 
 
@@ -41,6 +43,8 @@ namespace platformer
             pauseMenu = new PauseMenu(graphics.PreferredBackBufferWidth,
                 graphics.PreferredBackBufferHeight);
             hud = new HUD();
+            playerBullets = new List<PlayerBullet>();
+            //face = new Face(player.IsLeft);
 
             mainMenu.OnPlayingStarted += OnPlayingStarted;
             pauseMenu.OnPlayingResumed += OnPlayingResumed;
@@ -55,6 +59,11 @@ namespace platformer
             background.LoadContent(Content);
             mainMenu.LoadContent(Content);
             pauseMenu.LoadContent(Content);
+            foreach (PlayerBullet bullet in playerBullets)
+            {
+                bullet.LoadContent(Content);
+            }
+            //face.LoadContent(Content);
             // TODO: use this.Content to load your game content here
         }
 
@@ -114,7 +123,6 @@ namespace platformer
                     background.Draw(_spriteBatch);
                     player.Draw(_spriteBatch);
                     platform.Draw(_spriteBatch);
-                    
                     //hud.Draw(_spriteBatch);
                     break;
                 case GameMode.GameOver:
@@ -126,10 +134,6 @@ namespace platformer
                 default:
                     break;
             }
-
-            //background.Draw(_spriteBatch);
-            //player.Draw(_spriteBatch);
-            //platform.Draw(_spriteBatch);
             
             _spriteBatch.End();
             base.Draw(gameTime);

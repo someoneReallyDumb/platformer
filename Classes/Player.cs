@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SharpDX.Direct3D9;
+
 namespace platformer.Classes
 {
     public class Player
@@ -17,27 +20,36 @@ namespace platformer.Classes
         private Texture2D texture;
         private Texture2D defaultTextureRight;
         private Texture2D defaultTextureLeft;
-        private float speed = 5;
-        private float fallSpeed = 7;
-        private float jumpSpeed = 10;
+        private int timer = 0;
+        private int maxTime = 5;
+        private float speed = 7;
+        private float fallSpeed = 10;
+        private float jumpSpeed = 7;
         private float jumpHeight = 100;
         private float startHeight = 0;
+        private int bulletTimer = 15;
+        private int bulletMaxTime = 15;
         //private double time = 0.0d;
         //private double duration = 400.0d;
         //private double jumpCount = 0;
-        private bool isLeft = false;
+        private static bool isLeft = false;
         //private bool jumped = false;
         private int textureRunNum = 0;
+
         private Texture2D[] texturesRunRight = new Texture2D[4];
         private Texture2D[] texturesRunLeft = new Texture2D[4];
         private Texture2D[] texturesJumpRight = new Texture2D[4];
         private Texture2D[] texturesJumpLeft = new Texture2D[4];
+
+        List<PlayerBullet> playerBullets = new List<PlayerBullet>();
+
         private int animSpeed = 7;
         private Rectangle upCollision;
         private Rectangle downCollision;
         private Rectangle leftCollision;
         private Rectangle rightCollision;
 
+        Face face = new Face(isLeft);
         public int Height
         {
             get { return texture.Height; }
@@ -59,6 +71,10 @@ namespace platformer.Classes
         {
             get;
             set;
+        }
+        public bool IsLeft
+        {
+            get { return isLeft; }
         }
         #region collisions
         public Rectangle UpCollision
@@ -92,21 +108,18 @@ namespace platformer.Classes
         public void Update(int widthScreen, int heightScreen, ContentManager content,
             GameTime gameTime)
         {
+            KeyboardState keyboard = Keyboard.GetState();
+            face.Update();
+            face.IsLeft = isLeft;
+            face.position = new Vector2(position.X, position.Y);
             if (IsFalling)
             {
                 position.Y += fallSpeed;
             }
-            KeyboardState keyboard = Keyboard.GetState();
             if (isLeft)
             { texture = defaultTextureLeft; }
             else { texture = defaultTextureRight; }
             #region Movement
-            //if (keyboard.IsKeyDown(Keys.S))
-            //{
-                //if (isLeft)
-                //{ texture = texturesJumpLeft[0]; }
-                //else { texture = texturesJumpRight[0]; }
-            //}
             if (keyboard.IsKeyDown(Keys.Space) || keyboard.IsKeyDown(Keys.W))
             {
                 if (!IsFalling)
@@ -148,7 +161,36 @@ namespace platformer.Classes
                     textureRunNum++;
                 }       
             }
+            if (keyboard.IsKeyDown(Keys.S) && !keyboard.IsKeyDown(Keys.D) &&
+                !keyboard.IsKeyDown(Keys.A) && !keyboard.IsKeyDown(Keys.W) &&
+                !keyboard.IsKeyDown(Keys.Space))
+            {
+                if (!isLeft)
+                {
+                    texture = texturesJumpRight[0];
+                }
+                else
+                {
+                    texture = texturesJumpLeft[0];
+                }
+            }
             #endregion
+            if (keyboard.IsKeyDown(Keys.RightShift) || keyboard.IsKeyDown(Keys.LeftShift))
+            {
+                face.IsShooting = true;
+            }
+            else
+            {
+                if (face.IsShooting)
+                {
+                    timer++;
+                }
+                if (timer >= maxTime)
+                {
+                    timer = 0;
+                    face.IsShooting = false;
+                }
+            }
             #region Bounds
             if (position.X < 0)
             {
@@ -176,6 +218,38 @@ namespace platformer.Classes
                 (int)position.Y + 10, 10, texture.Height - 20);
             rightCollision = new Rectangle((int)position.X + texture.Width,
                 (int)position.Y + 10, 10, texture.Height - 20);
+            face.position = new Vector2(position.X, position.Y);
+            if (keyboard.IsKeyDown(Keys.RightShift) || keyboard.IsKeyDown(Keys.LeftShift))
+            {
+                bulletTimer++;
+                if (bulletTimer >= bulletMaxTime)
+                {
+                    PlayerBullet playerBullet = new PlayerBullet();
+                    if (!isLeft)
+                    {
+                        playerBullet.Position = new Vector2(position.X + 35, position.Y + 10);
+                    }
+                    else
+                    {
+                        playerBullet.Position = new Vector2(position.X - 22, position.Y + 10);
+                    }
+                    playerBullet.IsLeft = isLeft;
+                    playerBullet.LoadContent(content);
+                    playerBullets.Add(playerBullet);
+                    bulletTimer = 0;
+                }
+            }
+            foreach (PlayerBullet bullet in playerBullets)
+            {
+                bullet.Update(widthScreen, heightScreen);
+            }
+            for (int i = 0; i < playerBullets.Count; i++)
+            {
+                if (playerBullets[i].IsAlive == false)
+                {
+                    playerBullets.RemoveAt(i);
+                }
+            }
         }
         private void Jump(float heightScreen)
         {
@@ -216,6 +290,11 @@ namespace platformer.Classes
             texture = content.Load<Texture2D>("default");
             defaultTextureLeft = content.Load<Texture2D>("default_left");
             LoadRunTextures(content);
+            face.LoadContent(content);
+            foreach (PlayerBullet bullet in playerBullets)
+            {
+                bullet.LoadContent(content);
+            }
         }
         public void LoadRunTextures(ContentManager content)
         {
@@ -239,6 +318,11 @@ namespace platformer.Classes
         public void Draw(SpriteBatch spriteBatch) 
         {
             spriteBatch.Draw(texture, position, Color.White);
+            face.Draw(spriteBatch);
+            foreach (PlayerBullet bullet in playerBullets)
+            {
+                bullet.Draw(spriteBatch);
+            }
         }
     }
 }
