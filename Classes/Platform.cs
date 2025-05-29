@@ -36,7 +36,7 @@ namespace platformer.Classes
             get { return height; }
             set { height = value; }
         }
-        public Platform( int x, int y) 
+        public Platform(int x, int y) 
         {
             position = new Vector2(x, y);
             texture = null;

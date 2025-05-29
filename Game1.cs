@@ -15,13 +15,22 @@ namespace platformer
         private SpriteBatch _spriteBatch;
 
         private Player player;
-        private Platform platform;
         private Background background;
         private HUD hud;
         private MainMenu mainMenu;
         private PauseMenu pauseMenu;
         private List<PlayerBullet> playerBullets;
-        //private Face face;
+        private Platform p1;
+        private Platform p2;
+        private Platform p3;
+        private Platform p4;
+        private Platform p5;
+        private Platform p6;
+        private Platform p7;
+        private Platform p8;
+        private Platform p9;
+        private Platform p10;
+        private Platform[] platforms;
         public static GameMode gameMode = GameMode.Menu;
 
 
@@ -36,7 +45,7 @@ namespace platformer
         {
             // TODO: Add your initialization logic here
             player = new Player();
-            platform = new Platform(390, 400);
+            //platform = new Platform(390, 400);
             background = new Background();
             mainMenu = new MainMenu(graphics.PreferredBackBufferWidth,
                 graphics.PreferredBackBufferHeight);
@@ -44,7 +53,19 @@ namespace platformer
                 graphics.PreferredBackBufferHeight);
             hud = new HUD();
             playerBullets = new List<PlayerBullet>();
-            //face = new Face(player.IsLeft);
+
+            p1 = new Platform(210, 400);
+            p2 = new Platform(488, 400);
+            p3 = new Platform(89, 300);
+            p4 = new Platform(349, 300);
+            p5 = new Platform(609, 300);
+            p6 = new Platform(210, 200);
+            p7 = new Platform(488, 200);
+            p8 = new Platform(89, 100);
+            p9 = new Platform(349, 100);
+            p10 = new Platform(609, 100);
+
+            platforms = [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10];
 
             mainMenu.OnPlayingStarted += OnPlayingStarted;
             pauseMenu.OnPlayingResumed += OnPlayingResumed;
@@ -55,15 +76,17 @@ namespace platformer
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             player.LoadContent(Content);
-            platform.LoadContent(Content);
             background.LoadContent(Content);
             mainMenu.LoadContent(Content);
             pauseMenu.LoadContent(Content);
+            for (int i = 0; i < platforms.Length; i++)
+            {
+                platforms[i].LoadContent(Content);
+            }
             foreach (PlayerBullet bullet in playerBullets)
             {
                 bullet.LoadContent(Content);
             }
-            //face.LoadContent(Content);
             // TODO: use this.Content to load your game content here
         }
 
@@ -122,7 +145,10 @@ namespace platformer
                 case GameMode.Playing:
                     background.Draw(_spriteBatch);
                     player.Draw(_spriteBatch);
-                    platform.Draw(_spriteBatch);
+                    for (int i = 0; i < platforms.Length; i++)
+                    {
+                        platforms[i].Draw(_spriteBatch);
+                    }
                     //hud.Draw(_spriteBatch);
                     break;
                 case GameMode.GameOver:
@@ -140,28 +166,31 @@ namespace platformer
         }
         public void CheckCollision()
         {
-            if (player.UpCollision.Intersects(platform.Location))
+            for (int i = 0; i < platforms.Length; i++)
             {
-                player.position.Y = platform.Location.Y + platform.Height;
-            }
+                if (player.UpCollision.Intersects(platforms[i].Location))
+                {
+                    player.position.Y = platforms[i].Location.Y + platforms[i].Height;
+                }
 
-            if (player.DownCollision.Intersects(platform.Location))
-            {
-                //player.position.Y -= player.JumpSpeed;
-                player.IsJumping = false;
-                player.IsFalling = false;
-                player.ClearJump();
-            }
+                if (player.DownCollision.Intersects(platforms[i].Location))
+                {
+                    player.IsJumping = false;
+                    player.IsFalling = false;
+                    player.ClearJump();
+                }
 
-            if (player.LeftCollision.Intersects(platform.Location))
-            {
-                player.position.X = platform.Location.X + platform.Location.Width;
-            }
+                if (player.LeftCollision.Intersects(platforms[i].Location))
+                {
+                    player.position.X = platforms[i].Location.X + platforms[i].Location.Width;
+                }
 
-            if (player.RightCollision.Intersects(platform.Location))
-            {
-                player.position.X = platform.Location.X - player.Width;
+                if (player.RightCollision.Intersects(platforms[i].Location))
+                {
+                    player.position.X = platforms[i].Location.X - player.Width;
+                }
             }
+            
         }
         private void OnPlayingStarted()
         {
