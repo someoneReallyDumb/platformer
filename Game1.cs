@@ -19,7 +19,9 @@ namespace platformer
         private HUD hud;
         private MainMenu mainMenu;
         private PauseMenu pauseMenu;
+        private Target target;
         private List<PlayerBullet> playerBullets;
+        #region Platforms
         private Platform p1;
         private Platform p2;
         private Platform p3;
@@ -31,6 +33,7 @@ namespace platformer
         private Platform p9;
         private Platform p10;
         private Platform[] platforms;
+        #endregion
         public static GameMode gameMode = GameMode.Menu;
 
 
@@ -52,8 +55,11 @@ namespace platformer
             pauseMenu = new PauseMenu(graphics.PreferredBackBufferWidth,
                 graphics.PreferredBackBufferHeight);
             hud = new HUD();
+            target = new Target(graphics.PreferredBackBufferWidth,
+                graphics.PreferredBackBufferHeight);
             playerBullets = new List<PlayerBullet>();
 
+            #region Platforms
             p1 = new Platform(210, 400);
             p2 = new Platform(488, 400);
             p3 = new Platform(89, 300);
@@ -66,6 +72,7 @@ namespace platformer
             p10 = new Platform(609, 100);
 
             platforms = [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10];
+            #endregion
 
             mainMenu.OnPlayingStarted += OnPlayingStarted;
             pauseMenu.OnPlayingResumed += OnPlayingResumed;
@@ -79,6 +86,7 @@ namespace platformer
             background.LoadContent(Content);
             mainMenu.LoadContent(Content);
             pauseMenu.LoadContent(Content);
+            target.LoadContent(Content);
             for (int i = 0; i < platforms.Length; i++)
             {
                 platforms[i].LoadContent(Content);
@@ -149,6 +157,7 @@ namespace platformer
                     {
                         platforms[i].Draw(_spriteBatch);
                     }
+                    target.Draw(_spriteBatch);
                     //hud.Draw(_spriteBatch);
                     break;
                 case GameMode.GameOver:
@@ -189,8 +198,20 @@ namespace platformer
                 {
                     player.position.X = platforms[i].Location.X - player.Width;
                 }
+                if(target.HitBox.Intersects(platforms[i].Location))
+                {
+                    target.ChangePosition();
+                }
+
             }
-            
+            foreach (Bullet bullet in playerBullets)
+            {
+                if (bullet.DestinationRectangle.Intersects(target.HitBox))
+                {
+                    target.ChangePosition();
+                    bullet.IsAlive = false;
+                }
+            }
         }
         private void OnPlayingStarted()
         {

@@ -225,16 +225,19 @@ namespace platformer.Classes
                 if (bulletTimer >= bulletMaxTime)
                 {
                     PlayerBullet playerBullet = new PlayerBullet();
+                    playerBullet.LoadContent(content);
                     if (!isLeft)
                     {
-                        playerBullet.Position = new Vector2(position.X + 35, position.Y + 10);
+                        playerBullet.DestinationRectangle = new Rectangle((int)position.X + 35,
+                            (int)position.Y + 10, playerBullet.Width, playerBullet.Height);
                     }
                     else
                     {
-                        playerBullet.Position = new Vector2(position.X - 22, position.Y + 10);
+                        playerBullet.DestinationRectangle = new Rectangle((int)position.X - 22,
+                            (int)position.Y + 10, playerBullet.Width, playerBullet.Height);
                     }
                     playerBullet.IsLeft = isLeft;
-                    playerBullet.LoadContent(content);
+                    
                     playerBullets.Add(playerBullet);
                     bulletTimer = 0;
                 }
@@ -248,6 +251,7 @@ namespace platformer.Classes
                 if (playerBullets[i].IsAlive == false)
                 {
                     playerBullets.RemoveAt(i);
+                    i--;
                 }
             }
         }

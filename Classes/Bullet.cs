@@ -23,24 +23,16 @@ namespace platformer.Classes
             get { return isAlive; }
             set { isAlive = value; }
         }
-            
-        public Vector2 Position
+        public Rectangle DestinationRectangle
         {
-            get 
-            { 
-                return new Vector2(destinationRectangle.X, destinationRectangle.Y);
-            } 
-            set 
-            { 
-                destinationRectangle.X = (int)value.X;
-                destinationRectangle.Y = (int)value.Y;
-            }
+            get { return destinationRectangle; }
+            set { destinationRectangle = value; }
         }
         public Bullet()
         {
             texture = null;
             isAlive = true;
-            destinationRectangle = new Rectangle((int)Position.X, (int)Position.Y, 0, 0);
+            destinationRectangle = new Rectangle(0, 0, 0, 0);
         }
         public virtual void Update(int widthScreen, int heightScreen)
         {

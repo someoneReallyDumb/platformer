@@ -26,6 +26,14 @@ namespace platformer.Classes
             speedX = 15;
             speedY = 0;
         }
+        public int Width
+        {
+            get { return texture.Width; }
+        }
+        public int Height
+        {
+            get { return texture.Height; }
+        }
         public override void Update(int widthScreen, int heightScreen)
         {
             if (isLeft)
@@ -43,10 +51,12 @@ namespace platformer.Classes
         {
             textureRight = content.Load<Texture2D>("bullet");
             textureLeft = content.Load<Texture2D>("bullet_left");
+            texture = textureRight;
+            destinationRectangle = new Rectangle(0, 0, textureRight.Width, textureRight.Height);
         }
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(texture, Position, Color.White);
+            spriteBatch.Draw(texture, DestinationRectangle, Color.White);
         }
     }
 }
