@@ -198,15 +198,10 @@ namespace platformer
                 {
                     player.position.X = platforms[i].Location.X - player.Width;
                 }
-                if(target.HitBox.Intersects(platforms[i].Location))
-                {
-                    target.ChangePosition();
-                }
-
             }
             foreach (Bullet bullet in playerBullets)
             {
-                if (bullet.DestinationRectangle.Intersects(target.HitBox))
+                if (bullet.DestinationRectangle.Intersects(target.HitBox))  //
                 {
                     target.ChangePosition();
                     bullet.IsAlive = false;
