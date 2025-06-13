@@ -76,6 +76,10 @@ namespace platformer.Classes
         {
             get { return isLeft; }
         }
+        public List<PlayerBullet> PlayerBullets
+        {
+            get { return playerBullets; }  
+        }
         #region collisions
         public Rectangle UpCollision
         {
@@ -97,7 +101,7 @@ namespace platformer.Classes
         //public Vector2 Position { get; set; }
         public Player()
         {
-            position = new Vector2(0,0);
+            position = new Vector2(0,1000);
             texture = defaultTextureRight;
             IsFalling = true;
             upCollision = new Rectangle((int)position.X, (int)position.Y, 0, 0);

@@ -20,6 +20,7 @@ namespace platformer
         private MainMenu mainMenu;
         private PauseMenu pauseMenu;
         private Target target;
+        private Spider spider; 
         private List<PlayerBullet> playerBullets;
         #region Platforms
         private Platform p1;
@@ -55,6 +56,8 @@ namespace platformer
             pauseMenu = new PauseMenu(graphics.PreferredBackBufferWidth,
                 graphics.PreferredBackBufferHeight);
             hud = new HUD();
+            spider = new Spider(graphics.PreferredBackBufferWidth,
+                graphics.PreferredBackBufferHeight);
             target = new Target(graphics.PreferredBackBufferWidth,
                 graphics.PreferredBackBufferHeight);
             playerBullets = new List<PlayerBullet>();
@@ -87,6 +90,7 @@ namespace platformer
             mainMenu.LoadContent(Content);
             pauseMenu.LoadContent(Content);
             target.LoadContent(Content);
+            spider.LoadContent(Content);
             for (int i = 0; i < platforms.Length; i++)
             {
                 platforms[i].LoadContent(Content);
@@ -116,6 +120,7 @@ namespace platformer
                             graphics.PreferredBackBufferWidth,
                             graphics.PreferredBackBufferHeight,
                             Content, gameTime);
+                    spider.Update();
                     if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                     {
                         gameMode = GameMode.Pause;
@@ -158,6 +163,7 @@ namespace platformer
                         platforms[i].Draw(_spriteBatch);
                     }
                     target.Draw(_spriteBatch);
+                    spider.Draw(_spriteBatch);
                     //hud.Draw(_spriteBatch);
                     break;
                 case GameMode.GameOver:
@@ -199,7 +205,7 @@ namespace platformer
                     player.position.X = platforms[i].Location.X - player.Width;
                 }
             }
-            foreach (Bullet bullet in playerBullets)
+            foreach (Bullet bullet in player.PlayerBullets)
             {
                 if (bullet.DestinationRectangle.Intersects(target.HitBox))  //
                 {
