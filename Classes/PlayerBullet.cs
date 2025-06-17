@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+
 namespace platformer.Classes
 {
     public class PlayerBullet : Bullet
@@ -39,12 +40,12 @@ namespace platformer.Classes
             if (isLeft)
             {
                 texture = textureLeft;
-                destinationRectangle.X -= speedX;
+                destinationRectangle.X -= (int)speedX;
             }
             else
             {
                 texture = textureRight;
-                destinationRectangle.X += speedX;
+                destinationRectangle.X += (int)speedX;
             }
         }
         public void LoadContent(ContentManager content)

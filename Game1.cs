@@ -22,6 +22,7 @@ namespace platformer
         private Target target;
         private Spider spider; 
         private List<PlayerBullet> playerBullets;
+        private List<SpiderBullet> spiderBullets;
         #region Platforms
         private Platform p1;
         private Platform p2;
@@ -30,9 +31,6 @@ namespace platformer
         private Platform p5;
         private Platform p6;
         private Platform p7;
-        private Platform p8;
-        private Platform p9;
-        private Platform p10;
         private Platform[] platforms;
         #endregion
         public static GameMode gameMode = GameMode.Menu;
@@ -61,6 +59,7 @@ namespace platformer
             target = new Target(graphics.PreferredBackBufferWidth,
                 graphics.PreferredBackBufferHeight);
             playerBullets = new List<PlayerBullet>();
+            spiderBullets = new List<SpiderBullet>();
 
             #region Platforms
             p1 = new Platform(210, 400);
@@ -70,11 +69,8 @@ namespace platformer
             p5 = new Platform(609, 300);
             p6 = new Platform(210, 200);
             p7 = new Platform(488, 200);
-            p8 = new Platform(89, 100);
-            p9 = new Platform(349, 100);
-            p10 = new Platform(609, 100);
 
-            platforms = [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10];
+            platforms = [p1, p2, p3, p4, p5, p6, p7];
             #endregion
 
             mainMenu.OnPlayingStarted += OnPlayingStarted;
@@ -99,6 +95,10 @@ namespace platformer
             {
                 bullet.LoadContent(Content);
             }
+            foreach (SpiderBullet bullet in spiderBullets)
+            {
+                bullet.LoadContent(Content);
+            }
             // TODO: use this.Content to load your game content here
         }
 
@@ -120,7 +120,7 @@ namespace platformer
                             graphics.PreferredBackBufferWidth,
                             graphics.PreferredBackBufferHeight,
                             Content, gameTime);
-                    spider.Update();
+                    spider.Update(Content, _spriteBatch);
                     if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                     {
                         gameMode = GameMode.Pause;

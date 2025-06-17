@@ -13,8 +13,8 @@ namespace platformer.Classes
 {
     public abstract class Bullet
     {
-        protected int speedX;
-        protected int speedY;
+        protected float speedX;
+        protected float speedY;
         protected Rectangle destinationRectangle;
         protected Texture2D texture;
         protected bool isAlive;
@@ -37,8 +37,8 @@ namespace platformer.Classes
         public virtual void Update(int widthScreen, int heightScreen)
         {
 
-            destinationRectangle.X += speedX;
-            destinationRectangle.Y += speedY;
+            destinationRectangle.X += (int)speedX;
+            destinationRectangle.Y += (int)speedY;
             if (destinationRectangle.X < 0)
             {
                 isAlive = false;
