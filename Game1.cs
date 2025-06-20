@@ -1,24 +1,28 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
 using platformer.Classes;
-//using SharpDX.Direct2D1;
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Media;
+using System.Text.Json;
+using System.IO;
+using System.Text.Json.Nodes;
+using System.Drawing;
 
 namespace platformer
 {
     public class Game1 : Game
     {
         private GraphicsDeviceManager graphics;
-        private SpriteBatch _spriteBatch;
+        private SpriteBatch spriteBatch;
 
         private Player player;
         private Background background;
         private HUD hud;
         private MainMenu mainMenu;
         private PauseMenu pauseMenu;
+        private GameOver gameOver;
         private Target target;
         private Spider spider; 
         private List<PlayerBullet> playerBullets;
@@ -53,6 +57,8 @@ namespace platformer
                 graphics.PreferredBackBufferHeight);
             pauseMenu = new PauseMenu(graphics.PreferredBackBufferWidth,
                 graphics.PreferredBackBufferHeight);
+            gameOver = new GameOver(graphics.PreferredBackBufferWidth,
+                graphics.PreferredBackBufferHeight);
             hud = new HUD();
             spider = new Spider(graphics.PreferredBackBufferWidth,
                 graphics.PreferredBackBufferHeight);
@@ -75,18 +81,21 @@ namespace platformer
 
             mainMenu.OnPlayingStarted += OnPlayingStarted;
             pauseMenu.OnPlayingResumed += OnPlayingResumed;
+            player.TakeDamage += hud.OnPlayerTakeDamage;
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
+            spriteBatch = new SpriteBatch(GraphicsDevice);
             player.LoadContent(Content);
             background.LoadContent(Content);
             mainMenu.LoadContent(Content);
             pauseMenu.LoadContent(Content);
+            gameOver.LoadContent(Content);
             target.LoadContent(Content);
             spider.LoadContent(Content);
+            hud.LoadContent(GraphicsDevice, Content);
             for (int i = 0; i < platforms.Length; i++)
             {
                 platforms[i].LoadContent(Content);
@@ -108,6 +117,7 @@ namespace platformer
             {
                 case GameMode.Menu:
                     mainMenu.Update();
+                    Reset();
                     break;
                 case GameMode.Pause:
                     pauseMenu.Update();
@@ -120,7 +130,11 @@ namespace platformer
                             graphics.PreferredBackBufferWidth,
                             graphics.PreferredBackBufferHeight,
                             Content, gameTime);
-                    spider.Update(Content, _spriteBatch);
+                    spider.Update(Content, spriteBatch);
+                    if (player.Health <= 0)
+                    {
+                        gameMode = GameMode.GameOver;
+                    }
                     if (Keyboard.GetState().IsKeyDown(Keys.Escape))
                     {
                         gameMode = GameMode.Pause;
@@ -128,6 +142,7 @@ namespace platformer
                     }
                     break;
                 case GameMode.GameOver:
+                    gameOver.Update();
                     break;
                 case GameMode.Exit:
                     Exit();
@@ -141,34 +156,35 @@ namespace platformer
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Thistle);
+            GraphicsDevice.Clear(Microsoft.Xna.Framework.Color.LightGreen);
 
             // TODO: Add your drawing code here
-            _spriteBatch.Begin();
+            spriteBatch.Begin();
             switch (gameMode)
             {
                 case GameMode.Menu:
-                    background.Draw(_spriteBatch);
-                    mainMenu.Draw(_spriteBatch);
+                    background.Draw(spriteBatch);
+                    mainMenu.Draw(spriteBatch);
                     break;
                 case GameMode.Pause:
-                    background.Draw(_spriteBatch);
-                    pauseMenu.Draw(_spriteBatch);
+                    background.Draw(spriteBatch);
+                    pauseMenu.Draw(spriteBatch);
                     break;
                 case GameMode.Playing:
-                    background.Draw(_spriteBatch);
-                    player.Draw(_spriteBatch);
+                    background.Draw(spriteBatch);
+                    player.Draw(spriteBatch);
                     for (int i = 0; i < platforms.Length; i++)
                     {
-                        platforms[i].Draw(_spriteBatch);
+                        platforms[i].Draw(spriteBatch);
                     }
-                    target.Draw(_spriteBatch);
-                    spider.Draw(_spriteBatch);
-                    //hud.Draw(_spriteBatch);
+                    target.Draw(spriteBatch);
+                    spider.Draw(spriteBatch);
+                    hud.Draw(spriteBatch);
+                    //hud.Draw(spriteBatch);
                     break;
                 case GameMode.GameOver:
-                    background.Draw(_spriteBatch);
-                    //gameOver.Draw(_spriteBatch);
+                    background.Draw(spriteBatch);
+                    gameOver.Draw(spriteBatch);
                     break;
                 case GameMode.Exit:
                     break;
@@ -176,7 +192,7 @@ namespace platformer
                     break;
             }
             
-            _spriteBatch.End();
+            spriteBatch.End();
             base.Draw(gameTime);
         }
         public void CheckCollision()
@@ -213,6 +229,24 @@ namespace platformer
                     bullet.IsAlive = false;
                 }
             }
+            if (!player.IsHurt)
+            {
+                if (spider.SpiderBullets != null)
+                {
+                    foreach (SpiderBullet spiderBullet in spider.SpiderBullets)
+                    {
+                        if (spiderBullet.DestinationRectangle.Intersects(player.UpCollision))
+                        {
+                            spiderBullet.IsAlive = false;
+                            player.Damage();
+                        }
+                    }
+                }
+                if (spider.HitBox.Intersects(player.UpCollision))
+                {
+                    player.Damage();
+                }
+            }
         }
         private void OnPlayingStarted()
         {
@@ -224,6 +258,12 @@ namespace platformer
         {
             gameMode = GameMode.Playing;
             //MediaPlayer.Play(_gameSong);
+        }
+        private void Reset()
+        {
+            player.Reset();
+            spider.Reset();
+            hud.Reset(player.MaxHealth);
         }
     }
 }

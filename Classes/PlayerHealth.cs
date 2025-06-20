@@ -34,20 +34,27 @@ namespace platformer.Classes
                 widthPart * numParts, height);
             }
         }
-        public PlayerHealth(Vector2 position, int numParts, int width, int height)
+        public PlayerHealth(Vector2 position)
         {
             this.position = position;
-            this.numParts = numParts;
-            this.height = height;
-            this.widthPart = width / numParts;
+            //DestinationRectangle = new Rectangle((int)position.X, (int)position.Y,
+                //widthPart * numParts, height);
         }
         public void LoadContent(ContentManager content)
         {
             texture = content.Load<Texture2D>("heart");
+            widthPart = texture.Width;
+            height = texture.Height;
         }
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(texture, DestinationRectangle, Color.White);
+            for (int i = 0; i < numParts; i++)
+            {
+                Rectangle rectangle = DestinationRectangle;
+                Rectangle partRectangle = new Rectangle((int)rectangle.X + (int)widthPart * i,
+                    rectangle.Y, widthPart, height);
+                spriteBatch.Draw(texture, partRectangle, Color.White);
+            }
         }
     }
 }

@@ -22,6 +22,8 @@ namespace platformer.Classes
         private Texture2D defaultFaceLeft;
         private Texture2D shootFace;
         private Texture2D shootFaceLeft;
+        private Texture2D sufferFace;
+        private Texture2D sufferFaceLeft;
         #endregion
         public bool IsShooting { get; set; }
         public bool IsLeft 
@@ -40,6 +42,8 @@ namespace platformer.Classes
             defaultFaceLeft = content.Load<Texture2D>("default_face_left");
             shootFace = content.Load<Texture2D>("shoot_face");
             shootFaceLeft = content.Load<Texture2D>("shoot_face_left");
+            sufferFace = content.Load<Texture2D>("suffer_face");
+            sufferFaceLeft = content.Load<Texture2D>("suffer_face_left");
         }
         public void Update()
         {
@@ -73,6 +77,21 @@ namespace platformer.Classes
                     texture = shootFaceLeft;
                 }
             }
+        }
+        public void Suffer()
+        {
+            if (!isLeft)
+            {
+                texture = sufferFace;
+            }
+            else
+            {
+                texture = sufferFaceLeft;
+            }
+        }
+        public void Reset()
+        {
+            texture = defaultFace;
         }
     }
 }

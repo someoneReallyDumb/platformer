@@ -17,7 +17,7 @@ namespace platformer.Classes
         public HUD()
         {
             //Vector2 position = new Vector2(20, 20);
-            health = new PlayerHealth(new Vector2(20, 20), 10, 200, 15);
+            health = new PlayerHealth(new Vector2(12, 15));
         }
         public void LoadContent(GraphicsDevice graphics, ContentManager content)
         {
@@ -31,9 +31,9 @@ namespace platformer.Classes
         {
             this.health.NumParts = health;
         }
-        public void Reset()
+        public void Reset(int h)
         {
-            health.NumParts = 3;
+            health.NumParts = h;
         }
     }
 }

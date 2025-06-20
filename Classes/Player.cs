@@ -20,6 +20,8 @@ namespace platformer.Classes
         private Texture2D texture;
         private Texture2D defaultTextureRight;
         private Texture2D defaultTextureLeft;
+        private int health = 5;
+        private int maxHealth = 5;
         private int timer = 0;
         private int maxTime = 5;
         private float speed = 7;
@@ -29,12 +31,18 @@ namespace platformer.Classes
         private float startHeight = 0;
         private int bulletTimer = 15;
         private int bulletMaxTime = 15;
+        private int immuneTime = 0;
+        private int immuneMaxTime = 30;
         //private double time = 0.0d;
         //private double duration = 400.0d;
         //private double jumpCount = 0;
         private static bool isLeft = false;
         //private bool jumped = false;
         private int textureRunNum = 0;
+        private bool isAlive = true;
+        private bool isHurt = false;
+
+        public event Action<int> TakeDamage;
 
         private Texture2D[] texturesRunRight = new Texture2D[4];
         private Texture2D[] texturesRunLeft = new Texture2D[4];
@@ -58,6 +66,14 @@ namespace platformer.Classes
         {
             get { return texture.Width; }
         }
+        public int Health
+        {
+            get => health;
+        }
+        public int MaxHealth
+        {
+            get => maxHealth;
+        }
         public float JumpSpeed
         {
             get { return jumpSpeed; }
@@ -72,9 +88,18 @@ namespace platformer.Classes
             get;
             set;
         }
+        public bool IsHurt
+        {
+            get => isHurt;
+            set => isHurt = value;
+        }
         public bool IsLeft
         {
             get { return isLeft; }
+        }
+        public bool IsAlive
+        {
+            get { return isAlive; }
         }
         public List<PlayerBullet> PlayerBullets
         {
@@ -116,6 +141,17 @@ namespace platformer.Classes
             face.Update();
             face.IsLeft = isLeft;
             face.position = new Vector2(position.X, position.Y);
+            if (isHurt)
+            {
+                immuneTime++;
+                face.Suffer();
+                if (immuneTime >= immuneMaxTime)
+                {
+                    isHurt = false;
+                    immuneTime = 0;
+                    face.TextureChange();
+                }
+            }
             if (IsFalling)
             {
                 position.Y += fallSpeed;
@@ -331,6 +367,27 @@ namespace platformer.Classes
             {
                 bullet.Draw(spriteBatch);
             }
+        }
+        public void Damage()
+        {
+            health--;
+            isHurt = true;
+            if (TakeDamage != null)
+                TakeDamage(health);
+        }
+        public void Reset()
+        {
+            position = new Vector2(0, 1000);
+            texture = defaultTextureRight;
+            playerBullets.Clear();
+            timer = 0;
+            bulletTimer = 15;
+            isLeft = false;
+            textureRunNum = 0;
+            startHeight = 0;
+            isAlive = true;
+            health = maxHealth;
+            face.Reset();
         }
     }
 }

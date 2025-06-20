@@ -30,12 +30,17 @@ namespace platformer.Classes
         private int stopMaxTime = 50;
         private bool isMoving = true;
         private bool shot = false;
+        private bool isAlive = true;
 
         private List<SpiderBullet> spiderBullets;
         public int Health { get; set; }
         public Rectangle HitBox
         {
             get { return hitbox; }
+        }
+        public bool IsAlive
+        {
+            get { return isAlive; }
         }
         public List<SpiderBullet> SpiderBullets
         {
@@ -169,7 +174,28 @@ namespace platformer.Classes
                     bullet.LoadContent(content);
                 }
             }
-            
+        }
+        public void Damage()
+        {
+            Health--;
+            if (Health <= 0)
+            {
+                isAlive = false;
+            }
+        }
+        public void Reset()
+        {
+            position = new Vector2(widthScreen / 2, 5);
+            hitbox = new Rectangle((int)position.X, (int)position.Y, 0, 0);
+            moveTimer = 0;
+            stopTimer = 0;
+            isMoving = true;
+            shot = false;
+            isAlive = true;
+            if (spiderBullets != null)
+            {
+                spiderBullets.Clear();
+            }
         }
     }
 }
