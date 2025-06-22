@@ -131,8 +131,15 @@ namespace platformer
                             graphics.PreferredBackBufferHeight,
                             Content, gameTime);
                     spider.Update(Content, spriteBatch);
+                    hud.Update();
                     if (player.Health <= 0)
                     {
+                        gameOver.Victory = false;
+                        gameMode = GameMode.GameOver;
+                    }
+                    if (!spider.IsAlive)
+                    {
+                        gameOver.Victory = true;
                         gameMode = GameMode.GameOver;
                     }
                     if (Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -142,6 +149,7 @@ namespace platformer
                     }
                     break;
                 case GameMode.GameOver:
+                    gameOver.TimeLabel(hud.Minutes, hud.Seconds);
                     gameOver.Update();
                     break;
                 case GameMode.Exit:
@@ -229,6 +237,17 @@ namespace platformer
                     bullet.IsAlive = false;
                 }
             }
+            if (!spider.IsHurt)
+            {
+                foreach (Bullet bullet in player.PlayerBullets)
+                {
+                    if (bullet.DestinationRectangle.Intersects(spider.HitBox))
+                    {
+                        spider.Damage();
+                        bullet.IsAlive = false;
+                    }
+                }
+            }
             if (!player.IsHurt)
             {
                 if (spider.SpiderBullets != null)
@@ -264,6 +283,6 @@ namespace platformer
             player.Reset();
             spider.Reset();
             hud.Reset(player.MaxHealth);
-        }
+        } 
     }
 }

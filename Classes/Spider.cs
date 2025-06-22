@@ -31,6 +31,7 @@ namespace platformer.Classes
         private bool isMoving = true;
         private bool shot = false;
         private bool isAlive = true;
+        private bool isHurt = false;
 
         private List<SpiderBullet> spiderBullets;
         public int Health { get; set; }
@@ -46,6 +47,11 @@ namespace platformer.Classes
         {
             get { return spiderBullets; }
         }
+        public bool IsHurt
+        {
+            get => isHurt;
+            set => isHurt = value;
+        }
         public Spider(int widthScreen, int heightScreen)
         {
             Health = 5;
@@ -58,7 +64,9 @@ namespace platformer.Classes
         }
         public void Update(ContentManager content, SpriteBatch spriteBatch)
         {
-            hitbox = new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
+            hitbox = new Rectangle((int)position.X + texture.Width / 4,
+                (int)position.Y + texture.Height / 4, texture.Width - texture.Width / 4,
+                texture.Height - texture.Height / 4);
             if (spiderBullets != null)
             {
                 foreach (SpiderBullet bullet in spiderBullets)
@@ -140,7 +148,7 @@ namespace platformer.Classes
         }
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(texture, hitbox, Color.White);
+            spriteBatch.Draw(texture, position, Color.White);
             if (spiderBullets != null)
             {
                 foreach (SpiderBullet bullet in spiderBullets)

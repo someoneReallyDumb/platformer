@@ -32,7 +32,7 @@ namespace platformer.Classes
         private int bulletTimer = 15;
         private int bulletMaxTime = 15;
         private int immuneTime = 0;
-        private int immuneMaxTime = 30;
+        private int immuneMaxTime = 50;
         //private double time = 0.0d;
         //private double duration = 400.0d;
         //private double jumpCount = 0;
@@ -138,6 +138,7 @@ namespace platformer.Classes
             GameTime gameTime)
         {
             KeyboardState keyboard = Keyboard.GetState();
+            MouseState mouse = Mouse.GetState();
             face.Update();
             face.IsLeft = isLeft;
             face.position = new Vector2(position.X, position.Y);
@@ -160,7 +161,7 @@ namespace platformer.Classes
             { texture = defaultTextureLeft; }
             else { texture = defaultTextureRight; }
             #region Movement
-            if (keyboard.IsKeyDown(Keys.Space) || keyboard.IsKeyDown(Keys.W))
+            if ((mouse.LeftButton == ButtonState.Pressed) || keyboard.IsKeyDown(Keys.W))
             {
                 if (!IsFalling)
                 {
@@ -203,7 +204,7 @@ namespace platformer.Classes
             }
             if (keyboard.IsKeyDown(Keys.S) && !keyboard.IsKeyDown(Keys.D) &&
                 !keyboard.IsKeyDown(Keys.A) && !keyboard.IsKeyDown(Keys.W) &&
-                !keyboard.IsKeyDown(Keys.Space))
+                (mouse.LeftButton == ButtonState.Released))
             {
                 if (!isLeft)
                 {
@@ -215,10 +216,6 @@ namespace platformer.Classes
                 }
             }
             #endregion
-            if (keyboard.IsKeyDown(Keys.RightShift) || keyboard.IsKeyDown(Keys.LeftShift))
-            {
-                face.IsShooting = true;
-            }
             else
             {
                 if (face.IsShooting)
@@ -259,9 +256,10 @@ namespace platformer.Classes
             rightCollision = new Rectangle((int)position.X + texture.Width,
                 (int)position.Y + 10, 10, texture.Height - 20);
             face.position = new Vector2(position.X, position.Y);
-            if (keyboard.IsKeyDown(Keys.RightShift) || keyboard.IsKeyDown(Keys.LeftShift))
+            if (mouse.RightButton == ButtonState.Pressed)
             {
                 bulletTimer++;
+                face.IsShooting = true;
                 if (bulletTimer >= bulletMaxTime)
                 {
                     PlayerBullet playerBullet = new PlayerBullet();
