@@ -200,6 +200,7 @@ namespace platformer.Classes
             isMoving = true;
             shot = false;
             isAlive = true;
+            Health = 5;
             if (spiderBullets != null)
             {
                 spiderBullets.Clear();

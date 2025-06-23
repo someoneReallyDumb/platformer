@@ -17,6 +17,7 @@ namespace platformer.Classes
         private Label label;
         private Label lblInstructions;
         private Label timeLabel;
+        private Label bestTimeLbl;
         private int widthScreen;
         private int heightScreen;
         private bool victory;
@@ -31,6 +32,7 @@ namespace platformer.Classes
             timeLabel = new Label(new Vector2(250, 220), "", Color.Black);
             lblInstructions = new Label(new Vector2(250, 240),
                 "Press Enter to continue", Color.DarkGreen);
+            bestTimeLbl = new Label(new Vector2(250, 280), "", Color.Black);
             this.widthScreen = widthScreen;
             this.heightScreen = heightScreen;
         }
@@ -39,12 +41,15 @@ namespace platformer.Classes
             label.LoadContent(content);
             lblInstructions.LoadContent(content);
             timeLabel.LoadContent(content);
+            bestTimeLbl.LoadContent(content);
             label.Position = new Vector2(widthScreen / 2 + label.SizeText.X / 2,
-                heightScreen / 2 - label.SizeText.Y / 2 - 20);
+                heightScreen / 2 - label.SizeText.Y / 2 - 50);
             timeLabel.Position = new Vector2(widthScreen / 2 + label.SizeText.X / 2,
+                heightScreen / 2 - label.SizeText.Y / 2 - 25);
+            bestTimeLbl.Position = new Vector2(widthScreen / 2 + label.SizeText.X / 2,
                 heightScreen / 2 - label.SizeText.Y / 2);
             lblInstructions.Position = new Vector2(widthScreen / 2 + label.SizeText.X / 2,
-                heightScreen / 2 - label.SizeText.Y / 2 + 20);
+                heightScreen / 2 - label.SizeText.Y / 2 + 25);
         }
         public void Update()
         {
@@ -69,10 +74,15 @@ namespace platformer.Classes
             label.Draw(spriteBatch);
             timeLabel.Draw(spriteBatch);
             lblInstructions.Draw(spriteBatch);
+            bestTimeLbl.Draw(spriteBatch);
         }
         public void TimeLabel(int min, int sec)
         {
             timeLabel.Text = "Time: " + min / 10 + min % 10 + ":" + sec / 10 + sec % 10;
+        }
+        public void ShowBestTime(int min, int sec)
+        {
+            bestTimeLbl.Text = "Best time: " + min / 10 + min % 10 + ":" + sec / 10 + sec % 10;
         }
     }
 }

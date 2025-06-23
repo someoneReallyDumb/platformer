@@ -23,7 +23,6 @@ namespace platformer
         private MainMenu mainMenu;
         private PauseMenu pauseMenu;
         private GameOver gameOver;
-        private Target target;
         private Spider spider; 
         private List<PlayerBullet> playerBullets;
         private List<SpiderBullet> spiderBullets;
@@ -38,7 +37,7 @@ namespace platformer
         private Platform[] platforms;
         #endregion
         public static GameMode gameMode = GameMode.Menu;
-
+        private int oldTime = 0;
 
         public Game1()
         {
@@ -61,8 +60,6 @@ namespace platformer
                 graphics.PreferredBackBufferHeight);
             hud = new HUD();
             spider = new Spider(graphics.PreferredBackBufferWidth,
-                graphics.PreferredBackBufferHeight);
-            target = new Target(graphics.PreferredBackBufferWidth,
                 graphics.PreferredBackBufferHeight);
             playerBullets = new List<PlayerBullet>();
             spiderBullets = new List<SpiderBullet>();
@@ -87,13 +84,16 @@ namespace platformer
 
         protected override void LoadContent()
         {
+            if (!File.Exists("time.txt"))
+            {
+                File.Create("time.txt");
+            }
             spriteBatch = new SpriteBatch(GraphicsDevice);
             player.LoadContent(Content);
             background.LoadContent(Content);
             mainMenu.LoadContent(Content);
             pauseMenu.LoadContent(Content);
             gameOver.LoadContent(Content);
-            target.LoadContent(Content);
             spider.LoadContent(Content);
             hud.LoadContent(GraphicsDevice, Content);
             for (int i = 0; i < platforms.Length; i++)
@@ -139,6 +139,7 @@ namespace platformer
                     }
                     if (!spider.IsAlive)
                     {
+                        ScoreSaved(hud.Minutes, hud.Seconds);
                         gameOver.Victory = true;
                         gameMode = GameMode.GameOver;
                     }
@@ -185,7 +186,6 @@ namespace platformer
                     {
                         platforms[i].Draw(spriteBatch);
                     }
-                    target.Draw(spriteBatch);
                     spider.Draw(spriteBatch);
                     hud.Draw(spriteBatch);
                     //hud.Draw(spriteBatch);
@@ -229,14 +229,6 @@ namespace platformer
                     player.position.X = platforms[i].Location.X - player.Width;
                 }
             }
-            foreach (Bullet bullet in player.PlayerBullets)
-            {
-                if (bullet.DestinationRectangle.Intersects(target.HitBox))  //
-                {
-                    target.ChangePosition();
-                    bullet.IsAlive = false;
-                }
-            }
             if (!spider.IsHurt)
             {
                 foreach (Bullet bullet in player.PlayerBullets)
@@ -277,6 +269,30 @@ namespace platformer
         {
             gameMode = GameMode.Playing;
             //MediaPlayer.Play(_gameSong);
+        }
+        private void ScoreSaved(int min, int sec)
+        {
+            string read = "";
+            StreamReader reader = new StreamReader("time.txt");
+            read = reader.ReadToEnd();
+            if (read != "")
+            {
+                oldTime = int.Parse(read);
+            }
+            reader.Close();
+            int newTime = min * 60 + sec;
+            if (oldTime == 0)
+            {
+                oldTime = newTime;
+            }
+            if (oldTime > newTime)
+            {
+                oldTime = newTime;
+            }
+            StreamWriter writer = new StreamWriter("time.txt");
+            writer.WriteLine(oldTime);
+            writer.Close();
+            gameOver.ShowBestTime(oldTime / 60, oldTime % 60);
         }
         private void Reset()
         {
