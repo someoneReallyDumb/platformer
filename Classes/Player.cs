@@ -20,8 +20,8 @@ namespace platformer.Classes
         private Texture2D texture;
         private Texture2D defaultTextureRight;
         private Texture2D defaultTextureLeft;
-        private int health = 5;
-        private int maxHealth = 5;
+        private int health = 3;
+        private int maxHealth = 3;
         private int timer = 0;
         private int maxTime = 5;
         private float speed = 7;
@@ -256,7 +256,7 @@ namespace platformer.Classes
             rightCollision = new Rectangle((int)position.X + texture.Width,
                 (int)position.Y + 10, 10, texture.Height - 20);
             face.position = new Vector2(position.X, position.Y);
-            if (mouse.RightButton == ButtonState.Pressed)
+            if (mouse.RightButton == ButtonState.Pressed || keyboard.IsKeyDown(Keys.RightShift))
             {
                 bulletTimer++;
                 face.IsShooting = true;

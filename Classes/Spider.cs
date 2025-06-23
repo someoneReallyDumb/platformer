@@ -17,6 +17,8 @@ namespace platformer.Classes
     public class Spider
     {
         private Texture2D texture;
+        private Texture2D defalultTexture;
+        private Texture2D sufferTexture;
         private Texture2D bulletTexture;
         private Vector2 position;
         private float speedX;
@@ -28,6 +30,8 @@ namespace platformer.Classes
         private int moveMaxTime = 150;
         private int stopTimer = 0;
         private int stopMaxTime = 50;
+        private int immuneTime = 0;
+        private int immuneMaxTime = 100;
         private bool isMoving = true;
         private bool shot = false;
         private bool isAlive = true;
@@ -67,6 +71,17 @@ namespace platformer.Classes
             hitbox = new Rectangle((int)position.X + texture.Width / 4,
                 (int)position.Y + texture.Height / 4, texture.Width - texture.Width / 4,
                 texture.Height - texture.Height / 4);
+            if (isHurt)
+            {
+                immuneTime++;
+                texture = sufferTexture;
+                if (immuneTime >= immuneMaxTime)
+                {
+                    isHurt = false;
+                    immuneTime = 0;
+                    texture = defalultTexture;
+                }
+            }
             if (spiderBullets != null)
             {
                 foreach (SpiderBullet bullet in spiderBullets)
@@ -137,7 +152,9 @@ namespace platformer.Classes
         public void LoadContent(ContentManager content)
         {
             texture = content.Load<Texture2D>("spider");
+            sufferTexture = content.Load<Texture2D>("sad_spider");
             bulletTexture = content.Load<Texture2D>("spiderBall");
+            defalultTexture = texture;
             if (spiderBullets != null)
             {
                 foreach (SpiderBullet bullet in spiderBullets)
@@ -174,7 +191,13 @@ namespace platformer.Classes
             SpiderBullet b5 = new SpiderBullet((int)position.X + texture.Width / 2 -
                 bulletTexture.Width / 2, (int)position.Y + texture.Height -
                 bulletTexture.Height, -6, 6);
-            spiderBullets = [b1, b2, b3, b4, b5];
+            SpiderBullet b6 = new SpiderBullet((int)position.X + texture.Width / 2 -
+                bulletTexture.Width / 2, (int)position.Y + texture.Height -
+                bulletTexture.Height, 9, 6);
+            SpiderBullet b7 = new SpiderBullet((int)position.X + texture.Width / 2 -
+                bulletTexture.Width / 2, (int)position.Y + texture.Height -
+                bulletTexture.Height, -9, 6);
+            spiderBullets = [b1, b2, b3, b4, b5, b6, b7];
             if (spiderBullets != null)
             {
                 foreach (SpiderBullet bullet in spiderBullets)

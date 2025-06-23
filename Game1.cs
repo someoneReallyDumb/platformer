@@ -48,6 +48,10 @@ namespace platformer
 
         protected override void Initialize()
         {
+            if (!File.Exists("time.txt"))
+            {
+                File.Create("time.txt");
+            }
             // TODO: Add your initialization logic here
             player = new Player();
             //platform = new Platform(390, 400);
@@ -84,10 +88,6 @@ namespace platformer
 
         protected override void LoadContent()
         {
-            if (!File.Exists("time.txt"))
-            {
-                File.Create("time.txt");
-            }
             spriteBatch = new SpriteBatch(GraphicsDevice);
             player.LoadContent(Content);
             background.LoadContent(Content);
@@ -237,6 +237,7 @@ namespace platformer
                     {
                         spider.Damage();
                         bullet.IsAlive = false;
+                        spider.IsHurt = true;
                     }
                 }
             }
