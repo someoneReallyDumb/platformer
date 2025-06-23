@@ -14,7 +14,6 @@ namespace platformer.Classes
     public class MainMenu : Menu
     {
         public event Action OnPlayingStarted;
-        public event Action OnLoadGame;
         public MainMenu(int widthScreen, int heightScreen) : base(widthScreen, heightScreen)
         {
             buttonList.Add(new Label(new Vector2(0, 0), "Play", Color.Black));

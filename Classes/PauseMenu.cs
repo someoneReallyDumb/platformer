@@ -14,11 +14,12 @@ namespace platformer.Classes
     public class PauseMenu : Menu
     {
         public event Action OnPlayingResumed;
-        public event Action OnSaveGame;
+        public event Action OnPlayingRestarted;
         public PauseMenu(int widthScreen, int heightScreen) : base(widthScreen, heightScreen)
         {
             buttonList.Add(new Label(new Vector2(0, 0), "Resume", Color.Black));
-            buttonList.Add(new Label(new Vector2(0, 40), "Exit to menu", Color.Black));
+            buttonList.Add(new Label(new Vector2(0, 40), "Restart", Color.Black));
+            buttonList.Add(new Label(new Vector2(0, 80), "Exit to menu", Color.Black));
         }
         public override void PressEnter()
         {
@@ -28,6 +29,11 @@ namespace platformer.Classes
                     OnPlayingResumed();
             }
             if (selected == 1)
+            {
+                if (OnPlayingRestarted != null)
+                    OnPlayingRestarted();
+            }
+            if (selected == 2)
             {
                 Game1.gameMode = GameMode.Menu;
             }

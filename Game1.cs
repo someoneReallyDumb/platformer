@@ -82,6 +82,7 @@ namespace platformer
 
             mainMenu.OnPlayingStarted += OnPlayingStarted;
             pauseMenu.OnPlayingResumed += OnPlayingResumed;
+            pauseMenu.OnPlayingRestarted += OnPlayingRestarted;
             player.TakeDamage += hud.OnPlayerTakeDamage;
             base.Initialize();
         }
@@ -270,6 +271,11 @@ namespace platformer
         {
             gameMode = GameMode.Playing;
             //MediaPlayer.Play(_gameSong);
+        }
+        private void OnPlayingRestarted()
+        {
+            Reset();
+            gameMode = GameMode.Playing;
         }
         private void ScoreSaved(int min, int sec)
         {
